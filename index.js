@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const sharp = require('sharp');
 const multer = require('multer');
+const lame = require('node-lame');
 const { PitchShift, Volume, Player, Context } = require('tone');
 
 app.use(express.static('public'));
@@ -10,11 +11,11 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-    res.render('resizetest');
+    res.render('index');
 });
 
-app.get('/au', (req, res) => {
-    res.render('audiotest');
+app.get('/re', (req, res) => {
+  res.render('gambar/resize');
 });
 
 
@@ -29,69 +30,70 @@ const storage = multer.diskStorage({
   
 const upload = multer({ storage: storage });
 
+// app.post('/resize', upload.single('image'), async (req, res) => {
+//   const { width, height } = req.body;
+//   const file = req.file;
+
+//   const resizedImage = await sharp(file.path)
+//     .resize(parseInt(width), parseInt(height))
+//     .toBuffer();
+
+//     const ori = await sharp(file.path).clone().toBuffer();
+
+//     const Metadataori = await sharp(ori).metadata();
+//     const Metadataresize = await sharp(resizedImage).metadata();
+//     console.log(Metadataori);
+//   res.render('resizehasil', { 
+//     resized: resizedImage,
+//     ori: ori,
+//     metaori : Metadataori,
+//     metaresize : Metadataresize
+//   });
+// });
+  
 app.post('/resize', upload.single('image'), async (req, res) => {
   const { width, height } = req.body;
   const file = req.file;
 
-  const resizedImage = await sharp(file.path)
+  const resultImage = await sharp(file.path)
     .resize(parseInt(width), parseInt(height))
     .toBuffer();
 
-    const ori = await sharp(file.path).clone().toBuffer();
+  const ori = await sharp(file.path).clone().toBuffer();
 
-    const Metadataori = await sharp(ori).metadata();
-    const Metadataresize = await sharp(resizedImage).metadata();
-    console.log(Metadataori);
-  res.render('resizehasil', { 
-    resized: resizedImage,
-    ori: ori,
-    metaori : Metadataori,
-    metaresize : Metadataresize
-  });
+  const Metadataori = await sharp(ori).metadata();
+  const Metadataresult = await sharp(resultImage).metadata();
+
+  console.log(Metadataresult);
+
+  const resultHtml = `
+  <div class="row">
+    <div class="col text-center">
+      <img class="img-fluid mx-auto" src="data:image/png;base64, ${ori.toString('base64')}" />
+    </div>
+    <div class="col text-center">
+      <img class="img-fluid mx-auto" src="data:image/png;base64, ${resultImage.toString('base64')}" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col text-center">
+      <p>Metadata</p>
+      <p>Size : ${Metadataori.size}</p>
+      <p>Height : ${Metadataori.height}</p>
+      <p>Width : ${Metadataori.width}</p>
+    </div>
+    <div class="col text-center">
+      <p>Metadata</p>
+      <p>Size : ${Metadataresult.size}</p>
+      <p>Height : ${Metadataresult.height}</p>
+      <p>Width : ${Metadataresult.width}</p>
+    </div>
+  </div>
+  `;
+
+  res.send(resultHtml);
 });
-
-app.post('/aud', upload.single('audio'), async (req, res) => {
-    const { pitch, volume } = req.body;
-    const file = req.file;
-  
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-  
-    reader.onload = async () => {
-      const audioBuffer = await Context.decodeAudioData(reader.result);
-  
-      // create a player and set the buffer
-      const player = new Player(audioBuffer).toDestination();
-  
-      // create a pitch shift effect
-      const pitchShift = new PitchShift(pitch).toDestination();
-  
-      // create a volume effect
-      const volumeNode = new Volume(volume).toDestination();
-  
-      // connect the player to the pitch shift and volume nodes
-      player.connect(pitchShift);
-      pitchShift.connect(volumeNode);
-  
-      // start playing the modified audio
-      player.start();
-  
-      // generate URIs for original and edited audio
-      const originalUri = `/audio/${file.originalname}`;
-      const editedUri = `/audio/${outputFilename}`;
-  
-      // render the audiohasil page with original and edited URIs
-      res.render('audiohasil', { originalUri, editedUri });
-    };
-  
-    reader.onerror = (error) => {
-      console.error(error);
-      res.status(500).send('Error processing audio file');
-    };
-  });
-  
-  
-  
 
   
   

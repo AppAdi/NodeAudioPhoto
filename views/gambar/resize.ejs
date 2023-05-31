@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prak Sismul | Adi Pratama Putra</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Adi Pratama Putra</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Gambar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Audio</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <form id="resizeForm" enctype="multipart/form-data">
+                <div class="col-md-6 text-center">
+                    <h1>resize</h1>
+                    <input type="file" name="image" id="imageInput" accept="image/*">
+                    <img id="imagePreview" src="" alt="Pratinjau Gambar">
+                </div>
+                <div class="col-md-6 text-center">
+                    <input type="number" name="width" placeholder="Width">
+                    <input type="number" name="height" placeholder="Height">
+                    <button type="submit">Resize</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultContainer"></div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+</body>
+
+</html>
+
+<!-- <form id="resizeForm" enctype="multipart/form-data">
+    <h1>resize</h1>
+    <input type="file" name="image">
+    <input type="number" name="width" placeholder="Width">
+    <input type="number" name="height" placeholder="Height">
+    <button type="submit">Resize</button>
+</form> -->
+
+<!-- <div id="resultContainer"></div> -->
+<!-- <script src="/js/jquery.js"></script> -->
+<script>
+    $(document).ready(function () {
+        $('#resizeForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '/resize',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#resultContainer').html(response);
+                }
+            });
+        });
+
+        $('#imageInput').on('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function () {
+                $('#imagePreview').attr('src', reader.result);
+            }
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+
+<style>
+    #imagePreview {
+        max-width: 200px;
+        max-height: 200px;
+    }
+</style>
