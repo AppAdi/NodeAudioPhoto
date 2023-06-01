@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prak Sismul | Adi Pratama Putra</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+</head>
+
+<body>
+    <%- include('../navbar'); %>
+    <div class="container">
+        <div class="row">
+            <form id="inputForm" enctype="multipart/form-data">
+                <h1 class="text-center mb-5 mt-5">Colour Manipulation</h1>
+                <div class="input-group mb-3">
+                    <div class="col-md-5 offset-md-1 text-center">
+                        <input type="file" class="form-control mt-3" name="image" id="imageInput" accept="image/*">
+                        <img id="imagePreview" src="/pic/dummy.png" alt="Pratinjau Gambar" class="mt-3">
+                    </div>
+                    <div class="col-md-5 ms-5 text-center">
+                        <select class="form-select" aria-label="Default select example" name="method">
+                            <option value="1" selected>Greyscale</option>
+                            <option value="2">Negate</option>
+                            <option value="2">Tint</option>
+                          </select>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary mt-3 btn-fluid">Process</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultContainer" class="mt-5"></div>
+    </div>
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.js"></script>
+</body>
+</html>
+
+<script>
+    $(document).ready(function () {
+        $('#inputForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: '/colourmanip',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#resultContainer').html(response);
+                }
+            });
+        });
+
+        $('#imageInput').on('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function () {
+                $('#imagePreview').attr('src', reader.result);
+            }
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+
+<style>
+    #imagePreview {
+        max-width: 200px;
+        max-height: 200px;
+    }
+</style>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pemrosesan Audio Client-Side</title>
+  <script src="https://cdn.jsdelivr.net/npm/tone@latest"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Pemrosesan Audio Client-Side</h1>
+
+  <input type="file" id="audioFile" accept="audio/*">
+  <br>
+  <label for="volumeInput">Volume:</label>
+  <input type="range" id="volumeInput" min="0" max="1" step="0.1" value="1">
+  <br>
+  <button id="processButton">Proses Audio</button>
+
+  <h2>Audio Asli</h2>
+  <audio id="audioPlayerOriginal" controls></audio>
+
+  <h2>Audio Hasil Edit</h2>
+  <audio id="audioPlayerEdited" controls></audio>
+
+  <script>
+    const audioPlayerOriginal = document.getElementById('audioPlayerOriginal');
+    const audioPlayerEdited = document.getElementById('audioPlayerEdited');
+
+    // Ketika tombol "Proses Audio" diklik
+    $('#processButton').click(function() {
+      const fileInput = document.getElementById('audioFile');
+      const volumeInput = document.getElementById('volumeInput');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+          const audioData = e.target.result;
+
+          const audioContext = new Tone.Context();
+          const playerOriginal = new Tone.Player().toDestination();
+          const playerEdited = new Tone.Player().toDestination();
+
+          // Memuat audio asli
+          playerOriginal.buffer = audioContext.decodeAudioData(audioData);
+          playerOriginal.loop = true;
+
+          // Memuat audio hasil edit
+          playerEdited.buffer = audioContext.decodeAudioData(audioData);
+          playerEdited.loop = true;
+
+          const volume = new Tone.Volume().toDestination();
+          volume.volume.value = parseFloat(volumeInput.value);
+
+          audioPlayerOriginal.src = URL.createObjectURL(file);
+          audioPlayerOriginal.play();
+
+          playerOriginal.start();
+
+          // Mengatur volume
+          volume.volume.value = parseFloat(volumeInput.value);
+
+          // Menghubungkan playerEdited dengan volume
+          playerEdited.chain(volume, audioContext.destination);
+
+          // Memproses audio dengan volume yang telah diatur
+          playerEdited.start();
+
+          // Mengubah URL audio hasil edit
+          const processedAudioData = Tone.toWav(playerEdited.buffer);
+          const processedAudioBlob = new Blob([processedAudioData], { type: 'audio/wav' });
+          const processedAudioUrl = URL.createObjectURL(processedAudioBlob);
+          audioPlayerEdited.src = processedAudioUrl;
+          audioPlayerEdited.play();
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+    });
+  </script>
+</body>
+</html>
