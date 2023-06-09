@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prak Sismul | Adi Pratama Putra</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+  </head>
+<body>
+  <%- include('../navbar'); %>
+  <div class="container mt-5 text-center">
+    <div class="container">
+      <div class="row row-cols-1 row-cols-md-5">
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title h3">Gain</h1>
+              <p class="card-text">Memanipulasi tingkat amplitudo atau volume dari audio.</p>
+              <a href="/volume"><button class="btn btn-primary w-100">Gain</button></a>
+            </div>
+          </div>
+        </div>
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title h3">Compressor</h1>
+              <p class="card-text">Mengurangi perbedaan amplitudo suara hingga volume menjadi stabil</p>
+              <a href="/compressor"><button class="btn btn-primary w-100">Compressor</button></a>
+            </div>
+          </div>
+        </div>
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title h3">Reverse</h1>
+              <p class="card-text">Memutar audio secara terbalik dari akhir menuju awal</p>
+              <a href="/reverse"><button class="btn btn-primary w-100">Reverse</button></a>
+            </div>
+          </div>
+        </div>
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title h3">Panner</h1>
+              <p class="card-text">Mengatur posisi audio secara secara spasial pada ruang 3D</p>
+              <a href="/panner"><button class="btn btn-primary w-100">Panner</button></a>
+            </div>
+          </div>
+        </div>
+        <div class="col mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h1 class="card-title h3">Delay</h1>
+              <p class="card-text">Menciptakan delay yang menghasilkan pengulangan suara pada waktu tertentu</p>
+              <a href="/delay"><button class="btn btn-primary w-100">Delay</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </div>  
+  <script src="/js/jquery.js"></script>
+  <script src="/js/bootstrap.js"></script>
+</body>
+</html>

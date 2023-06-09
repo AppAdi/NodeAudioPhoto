@@ -10,36 +10,55 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Adi Pratama Putra</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Gambar</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Audio</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <%- include('./navbar'); %>
     <div class="container">
-        <div class="row">
-            <div class="col-md-6 text-center">
-                <a href="/route" class="btn btn-primary">Gambar</a>
+        <div class="row mt-5">
+            <div class="col-3">
+                <div class="card text-center">
+                    <img src="/pic/profil.jpg" class="card-img-top rounded-circle w-50 h-50 overflow-hidden mx-auto mt-3" alt="Profile Picture">
+                    <div class="card-body">
+                      <h5 class="card-title">Adi Pratama Putra</h5>
+                      <p class="card-text">1207050140</p>
+                      <p class="card-text">Teknik Informatika</p>
+                    </div>
+                </div>                  
             </div>
-            <div class="col-md-6 text-center">
-                <a href="/route" class="btn btn-primary">Audio</a>
-            </div>
+          <div class="col-3 offset-1">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-center">Image Processing</h5>
+                    <ol>
+                        <li>Blur</li>
+                        <li>Resize</li>
+                        <li>Crop</li>
+                        <li>Flip</li>
+                        <li>Rotate</li>
+                        <li>Sharpen</li>
+                        <li>Composite</li>
+                        <li>Color Manipulation</li>
+                    </ol>
+                    <a href="/gambar"><button class="btn btn-primary w-100">Image Menu</button></a>
+                </div>
+            </div> 
+          </div>
+          <div class="col-3">
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title text-center">Audio Processing</h5>
+                  <ol>
+                    <li>Volume</li>
+                    <li>Compressor</li>
+                    <li>Delay</li>
+                    <li>Panner</li>
+                    <li>Reverse</li>
+                </ol>
+                  <a href="/audio"><button class="btn btn-primary w-100">Audio Menu</button></a>
+                </div>
+            </div> 
+          </div>
         </div>
     </div>
+            
     <script src="/js/jquery.js"></script>
     <script src="/js/bootstrap.js"></script>
 </body>

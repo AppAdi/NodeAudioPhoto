@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prak Sismul | Adi Pratama Putra</title>
+  <link rel="stylesheet" href="/css/bootstrap.css">
+</head>
+
+<body>
+  <%- include('../navbar'); %>
+
+  <div class="container">
+    <div class="row text-center">
+      <h1 class="text-center mb-5 mt-5">Delay Audio</h1>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <input type="file" class="form-control mt-3" id="audio-file-input" accept="audio/*">
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <div class="col">
+        <form id="delay-form">
+          <label for="delay-time-input " class="form-label mt-3">Delay Time</label>
+          <input type="number" class="form-control" id="delay-time-input" step="0.1" min="0" max="1" value="0.5">
+          <label for="feedback-gain-input" class="form-label mt-2">Feedback Gain</label>
+          <input type="number" class="form-control" id="feedback-gain-input" step="0.1" min="0" max="1" value="0.5">
+      </div>
+      <div class="col">
+        <button type="submit" class="btn btn-primary mt-3 w-100 h-100">Apply</button>
+        </form>
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <button id="play-button" class="btn btn-success mt-3 w-100">Play Audio</button>
+    </div>
+  </div>
+
+  <script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const fileInput = document.getElementById('audio-file-input');
+    const delayForm = document.getElementById('delay-form');
+    const delayTimeInput = document.getElementById('delay-time-input');
+    const feedbackGainInput = document.getElementById('feedback-gain-input');
+    const playButton = document.getElementById('play-button');
+    let source;
+    let delayNode;
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+          source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+
+          delayNode = audioContext.createDelay();
+          delayNode.delayTime.value = delayTimeInput.value;
+
+          const feedbackGainNode = audioContext.createGain();
+          feedbackGainNode.gain.value = feedbackGainInput.value;
+
+          source.connect(delayNode);
+          delayNode.connect(feedbackGainNode);
+          feedbackGainNode.connect(delayNode);
+          delayNode.connect(audioContext.destination);
+        });
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
+
+    playButton.addEventListener('click', () => {
+      if (source) {
+        source.start(0);
+      }
+    });
+
+    delayForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (delayNode) {
+        delayNode.delayTime.value = delayTimeInput.value;
+        feedbackGainNode.gain.value = feedbackGainInput.value;
+      }
+    });
+  </script>
+</body>
+
+</html>

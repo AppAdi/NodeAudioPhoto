@@ -2,53 +2,12 @@ const express = require('express');
 const app = express();
 const sharp = require('sharp');
 const multer = require('multer');
-const Tone = require('tone');
 const fs = require('fs');
 
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
-
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-app.get('/resize', (req, res) => {
-  res.render('gambar/resize');
-});
-
-app.get('/crop', (req, res) => {
-  res.render('gambar/crop');
-});
-
-app.get('/rotate', (req, res) => {
-  res.render('gambar/rotate');
-});
-
-app.get('/flip', (req, res) => {
-  res.render('gambar/flip');
-});
-
-app.get('/blur', (req, res) => {
-  res.render('gambar/blur');
-});
-
-app.get('/sharpen', (req, res) => {
-  res.render('gambar/sharpen');
-});
-
-app.get('/colourmanip', (req, res) => {
-  res.render('gambar/colour-manipulation');
-});
-
-app.get('/channelmanip', (req, res) => {
-  res.render('gambar/channel-manipulation');
-});
-
-app.get('/composite', (req, res) => {
-  res.render('gambar/composite');
-});
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -62,7 +21,22 @@ const storage = multer.diskStorage({
   
 const upload = multer({ storage: storage });
 
-  
+app.get('/', (req, res) => {
+  res.render('index');
+});
+
+//=================//
+//IMAGE PROCESSING
+//=================//
+
+app.get('/gambar', (req, res) => {
+  res.render('gambar/home-gambar');
+});
+
+app.get('/resize', (req, res) => {
+  res.render('gambar/resize');
+});
+
 app.post('/resize', upload.single('image'), async (req, res) => {
   const { width, height } = req.body;
   const file = req.file;
@@ -81,6 +55,10 @@ app.post('/resize', upload.single('image'), async (req, res) => {
   res.send(resultHtml);
 });
 
+
+app.get('/crop', (req, res) => {
+  res.render('gambar/crop');
+});
 
 app.post('/crop', upload.single('image'), async (req, res) => {
   const { width, height } = req.body;
@@ -101,6 +79,11 @@ app.post('/crop', upload.single('image'), async (req, res) => {
   res.send(resultHtml);
 });
 
+
+app.get('/rotate', (req, res) => {
+  res.render('gambar/rotate');
+});
+
 app.post('/rotate', upload.single('image'), async (req, res) => {
   const {angle} = req.body;
   const file = req.file;
@@ -115,6 +98,11 @@ app.post('/rotate', upload.single('image'), async (req, res) => {
 
   const resultHtml = generateResultHtml(ori, resultImage, Metadataori, Metadataresult);
   res.send(resultHtml);
+});
+
+
+app.get('/flip', (req, res) => {
+  res.render('gambar/flip');
 });
 
 app.post('/flip', upload.single('image'), async (req, res) => {
@@ -140,6 +128,11 @@ app.post('/flip', upload.single('image'), async (req, res) => {
   res.send(resultHtml);
 });
 
+
+app.get('/sharpen', (req, res) => {
+  res.render('gambar/sharpen');
+});
+
 app.post('/sharpen', upload.single('image'), async (req, res) => {
   const {value} = req.body;
   const file = req.file;
@@ -156,6 +149,11 @@ app.post('/sharpen', upload.single('image'), async (req, res) => {
   res.send(resultHtml);
 });
 
+
+app.get('/blur', (req, res) => {
+  res.render('gambar/blur');
+});
+
 app.post('/blur', upload.single('image'), async (req, res) => {
   const {value} = req.body;
   const file = req.file;
@@ -170,6 +168,11 @@ app.post('/blur', upload.single('image'), async (req, res) => {
 
   const resultHtml = generateResultHtml(ori, resultImage, Metadataori, Metadataresult);
   res.send(resultHtml);
+});
+
+
+app.get('/colourmanip', (req, res) => {
+  res.render('gambar/colour-manipulation');
 });
 
 app.post('/colourmanip', upload.single('image'), async (req, res) => {
@@ -199,31 +202,9 @@ app.post('/colourmanip', upload.single('image'), async (req, res) => {
   res.send(resultHtml);
 });
 
-app.post('/channelmanip', upload.single('image'), async (req, res) => {
-  const {method} = req.body;
-  const file = req.file;
-  let resultImage = "";
 
-  if(parseInt(method) == 1){
-    resultImage = await sharp(file.path)
-    .removeAlpha()
-    .toBuffer();
-  }else if(parseInt(method) == 2){
-    resultImage = await sharp(file.path)
-    .ensureAlpha()
-    .toBuffer();
-  }else{
-    resultImage = await sharp(file.path)
-    .extractChannel('green')
-    .toBuffer();
-  }
-  
-  const ori = await sharp(file.path).clone().toBuffer();
-  const Metadataori = await sharp(ori).metadata();
-  const Metadataresult = await sharp(resultImage).metadata();
-
-  const resultHtml = generateResultHtml(ori, resultImage, Metadataori, Metadataresult);
-  res.send(resultHtml);
+app.get('/composite', (req, res) => {
+  res.render('gambar/composite');
 });
 
 app.post('/composite', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'secondImage', maxCount: 1 }]), async (req, res) => {
@@ -279,10 +260,28 @@ function generateResultHtml(ori, resultImage, Metadataori, Metadataresult, callb
 
 
 
-
+app.get('/audio', (req, res) => {
+  res.render('audio/home-audio');
+});
 
 app.get('/volume', (req, res) => {
   res.render('audio/volume');
+});
+
+app.get('/compressor', (req, res) => {
+  res.render('audio/compressor');
+});
+
+app.get('/delay', (req, res) => {
+  res.render('audio/delay');
+});
+
+app.get('/panner', (req, res) => {
+  res.render('audio/panner');
+});
+
+app.get('/reverse', (req, res) => {
+  res.render('audio/reverse');
 });
 
 app.listen(3000, () => {

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prak Sismul | Adi Pratama Putra</title>
+  <link rel="stylesheet" href="/css/bootstrap.css">
+</head>
+
+<body>
+  <%- include('../navbar'); %>
+  <div class="container">
+    <div class="row text-center">
+      <h1 class="text-center mb-5 mt-5">Reverse Audio</h1>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <input type="file" class="form-control mt-3" id="audio-file-input" accept="audio/*">
+      </div>
+    </div>
+    <div class="row text-center mt-3">
+      <button id="play-button" class="btn btn-success mt-3 w-100">Play Audio</button>
+    </div>
+  </div>
+
+  <script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const fileInput = document.getElementById('audio-file-input');
+    const playButton = document.getElementById('play-button');
+    let source;
+    let reversedBuffer;
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const fileReader = new FileReader();
+
+      fileReader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+          reversedBuffer = reverseAudioBuffer(audioBuffer);
+          playButton.disabled = false;
+        });
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
+
+    function reverseAudioBuffer(audioBuffer) {
+      const numberOfChannels = audioBuffer.numberOfChannels;
+      const reversedBuffer = audioContext.createBuffer(
+        numberOfChannels,
+        audioBuffer.length,
+        audioBuffer.sampleRate
+      );
+
+      for (let channel = 0; channel < numberOfChannels; channel++) {
+        const inputData = audioBuffer.getChannelData(channel);
+        const outputData = reversedBuffer.getChannelData(channel);
+        for (let i = 0; i < audioBuffer.length; i++) {
+          outputData[i] = inputData[audioBuffer.length - i - 1];
+        }
+      }
+      return reversedBuffer;
+    }
+
+    playButton.addEventListener('click', () => {
+      if (reversedBuffer) {
+        source = audioContext.createBufferSource();
+        source.buffer = reversedBuffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+      }
+    });
+  </script>
+</body>
+
+</html>

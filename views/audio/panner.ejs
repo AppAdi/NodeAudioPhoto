@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prak Sismul | Adi Pratama Putra</title>
+  <link rel="stylesheet" href="/css/bootstrap.css">
+</head>
+
+<body>
+  <%- include('../navbar'); %>
+
+  <div class="container">
+    <div class="row text-center">
+      <h1 class="text-center mb-5 mt-5">Panner Audio</h1>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <input type="file" class="form-control mt-3" id="audio-file-input" accept="audio/*">
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <div class="col">
+        <form id="panner-form">
+          <h6>Panning (-1 s/d 1)</h6>
+          <input type="number" class="form-control mt-3" id="panning-input" step="0.1" min="-1" max="1" value="0">
+      </div>
+      <div class="col">
+        <button type="submit" class="btn btn-primary mt-3 w-100 h-100">Apply</button>
+        </form>
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <button id="play-button" class="btn btn-success mt-3 w-100">Play Audio</button>
+    </div>
+  </div>
+
+  <script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const fileInput = document.getElementById('audio-file-input');
+    const pannerForm = document.getElementById('panner-form');
+    const panningInput = document.getElementById('panning-input');
+    const playButton = document.getElementById('play-button');
+    let source;
+    let pannerNode;
+
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const fileReader = new FileReader();
+
+      fileReader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+          source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          pannerNode = audioContext.createPanner();
+          pannerNode.panningModel = 'equalpower';
+          pannerNode.setPosition(panningInput.value, 0, 1 - Math.abs(panningInput.value));
+          source.connect(pannerNode);
+          pannerNode.connect(audioContext.destination);
+        });
+      };
+
+      fileReader.readAsArrayBuffer(file);
+    });
+
+    playButton.addEventListener('click', () => {
+      if (source) {
+        source.start(0);
+      }
+    });
+
+    pannerForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (pannerNode) {
+        pannerNode.setPosition(panningInput.value, 0, 1 - Math.abs(panningInput.value));
+      }
+    });
+  </script>
+</body>
+
+</html>

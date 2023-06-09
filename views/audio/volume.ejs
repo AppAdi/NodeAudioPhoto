@@ -1,82 +1,81 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Pemrosesan Audio Client-Side</title>
-  <script src="https://cdn.jsdelivr.net/npm/tone@latest"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prak Sismul | Adi Pratama Putra</title>
+  <link rel="stylesheet" href="/css/bootstrap.css">
 </head>
+
 <body>
-  <h1>Pemrosesan Audio Client-Side</h1>
-
-  <input type="file" id="audioFile" accept="audio/*">
-  <br>
-  <label for="volumeInput">Volume:</label>
-  <input type="range" id="volumeInput" min="0" max="1" step="0.1" value="1">
-  <br>
-  <button id="processButton">Proses Audio</button>
-
-  <h2>Audio Asli</h2>
-  <audio id="audioPlayerOriginal" controls></audio>
-
-  <h2>Audio Hasil Edit</h2>
-  <audio id="audioPlayerEdited" controls></audio>
+  <%- include('../navbar'); %>
+  <div class="container">
+    <div class="row text-center">
+      <h1 class="text-center mb-5 mt-5">Volume Audio</h1>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <input type="file" class="form-control mt-3" id="audio-file-input" accept="audio/*">
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <div class="col">
+        <form id="gain-form">
+          <h6>Gain Volume</h6>
+          <input type="number" class="form-control mt-3" id="gain-input" step="0.1" min="0" max="1" value="0.7">
+      </div>
+      <div class="col">
+        <button type="submit" class="btn btn-primary mt-3 w-100 h-100">Apply</button>
+        </form>
+      </div>
+    </div>
+    <div class="row text-center mt-5">
+      <button id="play-button" class="btn btn-success mt-3 w-100">Play Audio</button>
+    </div>
+  </div>
 
   <script>
-    const audioPlayerOriginal = document.getElementById('audioPlayerOriginal');
-    const audioPlayerEdited = document.getElementById('audioPlayerEdited');
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const fileInput = document.getElementById('audio-file-input');
+    const gainForm = document.getElementById('gain-form');
+    const gainInput = document.getElementById('gain-input');
+    const playButton = document.getElementById('play-button');
+    let source;
+    let gainNode;
 
-    // Ketika tombol "Proses Audio" diklik
-    $('#processButton').click(function() {
-      const fileInput = document.getElementById('audioFile');
-      const volumeInput = document.getElementById('volumeInput');
-      const file = fileInput.files[0];
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const fileReader = new FileReader();
 
-      if (file) {
-        const reader = new FileReader();
+      fileReader.onload = (e) => {
+        const arrayBuffer = e.target.result;
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+          source = audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          gainNode = audioContext.createGain();
+          gainNode.gain.value = gainInput.value;
+          source.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+        });
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
 
-        reader.onload = function(e) {
-          const audioData = e.target.result;
+    playButton.addEventListener('click', () => {
+      if (source) {
+        source.start(0);
+      }
+    });
 
-          const audioContext = new Tone.Context();
-          const playerOriginal = new Tone.Player().toDestination();
-          const playerEdited = new Tone.Player().toDestination();
-
-          // Memuat audio asli
-          playerOriginal.buffer = audioContext.decodeAudioData(audioData);
-          playerOriginal.loop = true;
-
-          // Memuat audio hasil edit
-          playerEdited.buffer = audioContext.decodeAudioData(audioData);
-          playerEdited.loop = true;
-
-          const volume = new Tone.Volume().toDestination();
-          volume.volume.value = parseFloat(volumeInput.value);
-
-          audioPlayerOriginal.src = URL.createObjectURL(file);
-          audioPlayerOriginal.play();
-
-          playerOriginal.start();
-
-          // Mengatur volume
-          volume.volume.value = parseFloat(volumeInput.value);
-
-          // Menghubungkan playerEdited dengan volume
-          playerEdited.chain(volume, audioContext.destination);
-
-          // Memproses audio dengan volume yang telah diatur
-          playerEdited.start();
-
-          // Mengubah URL audio hasil edit
-          const processedAudioData = Tone.toWav(playerEdited.buffer);
-          const processedAudioBlob = new Blob([processedAudioData], { type: 'audio/wav' });
-          const processedAudioUrl = URL.createObjectURL(processedAudioBlob);
-          audioPlayerEdited.src = processedAudioUrl;
-          audioPlayerEdited.play();
-        };
-
-        reader.readAsArrayBuffer(file);
+    gainForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (gainNode) {
+        gainNode.gain.value = gainInput.value;
       }
     });
   </script>
 </body>
+
 </html>
